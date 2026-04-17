@@ -4,7 +4,7 @@ import argparse
 from yandex_music import Client
 
 
-def parse_vk_music_file(filepath):
+def parse_vk_music_file(filepath, is_reverse):
     tracks = []
     current_track_lines = []
     # Regex to match duration e.g. 3:44 or 10:22 or 0:45
@@ -31,18 +31,23 @@ def parse_vk_music_file(filepath):
         tracks.append(query)
 
     # Сначала добавляются старые треки (с конца списка), чтобы новые оказались наверху в Яндекс.Музыке
-    tracks.reverse()
+    if is_reverse:
+        tracks.reverse()
+
     return tracks
 
 def main():
     parser = argparse.ArgumentParser(description='Import VK music to Yandex Music')
     parser.add_argument('file', help='Path to the txt file with VK music list')
     parser.add_argument('--token', required=True, help='Yandex Music API token')
+    parser.add_argument('--reverse', action='store_true', help='Reverse the order of tracks')
     args = parser.parse_args()
+
+    REVERSE = args.reverse
 
     print("Parsing music file...")
     try:
-        tracks = parse_vk_music_file(args.file)
+        tracks = parse_vk_music_file(args.file, REVERSE)
         print(f"Found {len(tracks)} tracks to import.")
     except Exception as e:
         print(f"Error reading file: {e}")
